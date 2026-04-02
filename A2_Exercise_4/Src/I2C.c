@@ -140,7 +140,8 @@ void I2C1_EV_IRQHandler(void) {
 
 	/*
 	 * Sequel to I2CRead function. flip the bus to R mode.
-	 * RD_WRN = 1 to flip into read mode
+	 * left shift interruptSlaveAddress by 1
+	 * RD_WRN = 1 to flip into read mode (now 7 bit address + W bit)
 	 * specify interruptRxBytes no. of bytes to read
 	 * trigger repeated start & end
 	 */
@@ -170,6 +171,11 @@ void I2C1_EV_IRQHandler(void) {
 		I2C1->ICR |= I2C_ICR_NACKCF; //clear the error flag
 		I2C1->CR2 |= I2C_CR2_STOP; //force stop condition
 		I2CState = IDLE_STEP; //reset bus state
+	}
+
+	//check for IDLE_STEP, if I2C in use
+	uint8_t I2CBusy(void) {
+	    return (I2CState != IDLE_STEP);
 	}
 
 }
